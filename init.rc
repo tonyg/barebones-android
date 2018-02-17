@@ -1,0 +1,33 @@
+on early-init
+    start ueventd
+
+on init
+    sysclktz 0
+    export PATH /sbin
+
+    # This is not strictly necessary, but is convenient.
+    #
+    mount /tmp /tmp tmpfs
+
+on boot
+
+    # These lines seem to be necessary for my Samsung Galaxy Note 10.1 device.
+    #
+    write /sys/class/android_usb/android0/functions adb
+    write /sys/class/android_usb/android0/enable 1
+
+    start adbd
+
+    # This line makes adb start as a root shell. Omitting this causes it to
+    # have trouble because it can't find /system/bin/sh.
+    #
+    setprop service.adb.root 1
+
+    start mandelbrot
+
+service ueventd /sbin/ueventd
+
+service adbd /sbin/adbd
+
+service mandelbrot /sbin/sh /mandelbrot.sh
+    oneshot
